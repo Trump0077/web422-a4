@@ -18,7 +18,7 @@ export default function ArtworkCard({ objectID }) {
         }
         else {
             return (
-                <Card className='hero-card'>
+                <Card>
                     {data.primaryImageSmall ? <Card.Img className='card-image' variant="top" src={data.primaryImageSmall} /> 
                     : <Card.Img className='card-image' variant="top" src="https://via.placeholder.com/375x375.png?text=[+Not+Available+]" /> }
                     <Card.Body>

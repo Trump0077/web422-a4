@@ -1,8 +1,11 @@
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import { useAtom } from 'jotai';
+import { searchHistoryAtom } from '@/store';
 
 export default function AdvancedSearch() {
+    const [ searchHistory, setSearchHistory ] = useAtom(searchHistoryAtom);
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         defaultValues: {
             searchQuery: "",
@@ -23,7 +26,8 @@ export default function AdvancedSearch() {
         queryString += `&isOnView=${data.isOnView || false}`;
         queryString += `&isHighlight=${data.isHighlight || false}`;
         queryString += `&q=${encodeURIComponent(data.searchQuery)}`;
-        console.log(`/artwork?${queryString}`);
+
+        setSearchHistory(searchHistory => [...searchHistory, queryString]);
         router.push(`/artwork?${queryString}`);
         reset();
     };

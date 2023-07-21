@@ -8,29 +8,25 @@ import Error from 'next/error';
 import Pagination from 'react-bootstrap/Pagination';
 import Card from 'react-bootstrap/Card';
 import ArtworkCard from '@/components/ArtworkCard';
+import validObjectIDList from '@/public/data/validObjectIDList.json';
 
 const PER_PAGE = 12;
 
 export default function ArtHome() {
     const router = useRouter();
-    const searchParams = new URLSearchParams(router.asPath);
-    const qParam = searchParams.get("q");
-    let finalQuery = qParam
-    let [ artworkList, setArtworkList ] = useState(null);
+    let finalQuery = router.asPath.split('?')[1];
+    let [ artworkList, setArtworkList ] = useState();
     let [ page, setPage ] = useState(1)
     const { data, error } = useSWR(`https://collectionapi.metmuseum.org/public/collection/v1/search?q=${finalQuery}`);
-
-    useEffect(() => {
-        console.log('Artwork List:', artworkList);
-      }, [artworkList]);
       
     useEffect(() => {
         if (data != null && data != undefined) {
+            let filteredResults = validObjectIDList.objectIDs.filter(x => data.objectIDs?.includes(x));
             let results = []
-            for (let i = 0; i < data?.objectIDs?.length; i += PER_PAGE) {
-                const chunk = data?.objectIDs.slice(i, i + PER_PAGE);
+            for (let i = 0; i < filteredResults.length; i += PER_PAGE) {
+                const chunk = filteredResults.slice(i, i + PER_PAGE);
                 results.push(chunk);
-            } 
+            }            
             setArtworkList(results);
             setPage(1);
         }
@@ -38,11 +34,7 @@ export default function ArtHome() {
 
     if (error) {
         return <Error statusCode={404} />;
-    } else {
-        if (!artworkList) {
-            return null;
-        }
-    }
+    } 
 
     const nextPage = () => page < artworkList.length && setPage(++page);
     const previousPage = () => page > 1 && setPage(--page);
@@ -73,8 +65,8 @@ export default function ArtHome() {
                 ) : (
                 <Card>
                     <Card.Body>
-                    <h4>Nothing Here</h4>
-                    <p>Try searching for something else.</p>
+                        <h4>Nothing Here</h4>
+                        <p>Try searching for something else.</p>
                     </Card.Body>
                 </Card>
                 )}
